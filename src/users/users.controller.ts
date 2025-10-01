@@ -1,6 +1,13 @@
-import { Controller, Get, Query, UsePipes } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  UseInterceptors,
+  UsePipes,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UppercasePipe } from '../uppercase/uppercase.pipe';
+import { UppercaseOutputInterceptor } from '../common/pipes/uppercase-output.pipe';
+import { UppercasePipe } from '../common/pipes/uppercase.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -11,9 +18,20 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('uppercase')
+  @UseInterceptors(UppercaseOutputInterceptor)
+  getAllUsersUppercase() {
+    return this.usersService.findAll();
+  }
+
   @Get('search')
-  @UsePipes(UppercasePipe) // aplicăm pipe pe query
-  searchUser(@Query('name') name: string) {
+  searchUser(@Query('name', UppercasePipe) name: string) {
+    return this.usersService.findByName(name);
+  }
+
+  @Get('search/uppercase')
+  @UseInterceptors(UppercaseOutputInterceptor)
+  searchUserUppercase(@Query('name', UppercasePipe) name: string) {
     return this.usersService.findByName(name);
   }
 }
